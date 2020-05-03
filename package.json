@@ -1,13 +1,17 @@
 {
     "name": "blockchain-exchange-api",
-    "version": "1.0",
+    "version": "1.0.0",
     "description": "Blockchain Exchange API, Node.JS implementation.",
-    "main": "",
+    "main": "exchange.js",
+    "scripts": {
+        "start": "node example.js"
+      },
     "keywords": [
         "blockchain",
         "exchange",
         "api",
-        "bitcoin"
+        "bitcoin",
+        "btc"
     ],
     "author": "George Ashton",
     "dependencies": {
