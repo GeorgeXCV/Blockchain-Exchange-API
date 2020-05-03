@@ -1,5 +1,5 @@
 const WebSocket = require('ws');
-const Config = require('./utils/config');
+const Config = require('./config');
 
 class BlockchainExchange {
     constructor() {
