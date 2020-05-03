@@ -1,7 +1,7 @@
 # Blockchain-Exchange-API
 Blockchain Exchange API, Node.JS client.
 
-# You Can:
+# Supports
 - [x] Create orders of all types - Limit and Market
 - [x] Get state of orders
 - [x] Cancel an order
