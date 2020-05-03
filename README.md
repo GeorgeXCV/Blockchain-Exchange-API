@@ -1,5 +1,5 @@
 # Blockchain-Exchange-API
-Blockchain Exchange API, Node.JS client.
+[Blockchain.com Exchange](https://exchange.blockchain.com/) API client written in Node.js.
 
 # Supports
 - [x] Create orders of all types - Limit and Market
