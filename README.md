@@ -9,3 +9,13 @@
 - [x] Subscribe to balances
 - [x] Subscribe to market data
 - [x] Subscribe to symbol reference data
+
+
+# Setup
+
+```
+git clone https://github.com/GeorgeXCV/Blockchain-Exchange-API.git
+npm install
+Create API Key at https://exchange.blockchain.com/
+Paste API Secret in config.js
+npm start
