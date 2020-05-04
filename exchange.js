@@ -8,7 +8,8 @@ class BlockchainExchange {
         this.apiSecret = Config.apiSecret;
     }
 
-    setupWebSocket() {
+    async setupWebSocket() {
+     return new Promise((resolve, reject) => {
       this.ws = new WebSocket(this.url, {
         origin: this.origin,
         headers: {
@@ -18,40 +19,30 @@ class BlockchainExchange {
 
       this.ws.on('open', function open() {
         console.log("WebSocket Connected");
-      });
-
-      this.ws.on('error', function (error) {
-        console.log("Websocket Error: " + error);
+        resolve(this.ws);
       });
 
       this.ws.on('message', message => {
-         let event;
-        try {
-            event = JSON.parse(message);
-            console.log(event);
-        } catch (error) {
-            event = message;
-            console.log("Error getting message: " + event);
-        }
-      })
+        let event;
+       try {
+           event = JSON.parse(message);
+           console.log(event);
+       } catch (error) {
+           event = message;
+           console.log("Error getting message: " + event);
+       }
+     })
+
+      this.ws.on('error', function (error) {
+        console.log("Websocket Error: " + error);
+        reject(error);
+      });
 
       this.ws.on('close', function close() {
         console.log('Disconnected');
       });
-    }
-
-    verifyWebSocketOpen() {
-      try {
-        if (this.ws.readyState === WebSocket.OPEN) {
-            return true;
-        }
-        else {
-             throw 'WebSocket not Open.'
-        }
-      } catch (error) {
-          console.log(error);
-      }
-    }
+    })
+  }
 
     wsSend (message) {
       try {
@@ -61,30 +52,35 @@ class BlockchainExchange {
       }
     } 
 
-    wsClose() {
+    async wsClose() {
       try {
-          this.ws.close();
+          if (this.ws.readyState == WebSocket.OPEN) {
+              await wait(2000); // Wait for any last response before closing
+              this.ws.close();
+          } else {
+             throw 'WebSocket not open, nothing to close.';
+          }
       } catch (error) {
           console.log("Failed to close conenction. Error: " + error);
       }
     }
 
     subscribeBalances() {
-      this.wsSend({
+      return this.wsSend({
         action: 'subscribe',
         channel: 'balances'
       }) 
     }
 
     subscribeHeartbeat() {
-      this.wsSend({
+      return this.wsSend({
         action: 'subscribe',
         channel: 'heartbeat'
       })
     }
 
     subscribeL2OrderBook(symbol) {
-      this.wsSend({
+      return this.wsSend({
         action: 'subscribe',
         channel: 'l2',
         symbol: symbol
@@ -92,7 +88,7 @@ class BlockchainExchange {
     }
 
     subscribeL3OrderBook(symbol) {
-      this.wsSend({
+      return this.wsSend({
         action: 'subscribe',
         channel: 'l3',
         symbol: symbol
@@ -100,7 +96,7 @@ class BlockchainExchange {
     }
 
     subscribePrices(symbol, granularity) {
-      this.wsSend({
+      return this.wsSend({
         action: 'subscribe',
         channel: 'prices',
         symbol: symbol,
@@ -109,14 +105,14 @@ class BlockchainExchange {
     }
 
     subscribeSymbols() {
-      this.wsSend({
+      return this.wsSend({
         action: 'subscribe',
         channel: 'symbols'
       })
     }
 
     subscribeTicker(symbol) {
-      this.wsSend({
+      return this.wsSend({
         action: 'subscribe',
         channel: 'ticker',
         symbol: symbol
@@ -124,7 +120,7 @@ class BlockchainExchange {
     }
 
     subscribeTrades(symbol) { // Market trades
-      this.wsSend({
+      return this.wsSend({
         action: 'subscribe',
         channel: 'trades',
         symbol: symbol
@@ -132,7 +128,7 @@ class BlockchainExchange {
     }
 
     subscribeTrading() { // Your Trades
-      this.wsSend({
+      return this.wsSend({
         action: 'subscribe',
         channel: 'trading'
       })
@@ -141,7 +137,7 @@ class BlockchainExchange {
     // Create Order functions
     // Must call subscribeTrading() first
     createMarketOrder(symbol, side, amount) {
-      this.wsSend({
+      return this.wsSend({
         action: 'NewOrderSingle',
         channel: 'trading',
         clOrdID: Config.orderID,
@@ -155,7 +151,7 @@ class BlockchainExchange {
     // GTC = Good Til Cancelled
     // Pass 'ALO' as last paramter if you want to Add Liquidty Only.
     createLimitGTCOrder(symbol, side, amount, price, addLiquidityOnly = '') {
-      this.wsSend({
+      return this.wsSend({
         action: 'NewOrderSingle',
         channel: 'trading',
         clOrdID: Config.orderID,
@@ -173,7 +169,7 @@ class BlockchainExchange {
     // Expire Date format = YYYYMMDD
     // Pass 'ALO' as last paramter if you want to Add Liquidty Only.
     createLimitGTDOrder(symbol, side, expireDate, amount, price, addLiquidityOnly = '') {
-      this.wsSend({
+      return this.wsSend({
         action: 'NewOrderSingle',
         channel: 'trading',
         clOrdID: Config.orderID,
@@ -191,7 +187,7 @@ class BlockchainExchange {
     // FOK = Fill or Kill
     // Pass 'ALO' as last paramter if you want to Add Liquidty Only.
     createLimitFOKOrder(symbol, side, amount, price, addLiquidityOnly = '') {
-      this.wsSend({
+      return this.wsSend({
         action: 'NewOrderSingle',
         channel: 'trading',
         clOrdID: Config.orderID,
@@ -208,7 +204,7 @@ class BlockchainExchange {
     // FOK = Immediate Or Cancel
     // Pass 'ALO' as last paramter if you want to Add Liquidty Only.
     createLimitIOCOrder(symbol, side, amount, price, minQuantity, addLiquidityOnly = '') {
-      this.wsSend({
+      return this.wsSend({
         action: 'NewOrderSingle',
         channel: 'trading',
         clOrdID: Config.orderID,
@@ -225,7 +221,7 @@ class BlockchainExchange {
 
     // GTC = Good Til Cancelled
     createSellStopGTCOrder(symbol, amount, stopPx) {
-      this.wsSend({
+      return this.wsSend({
         action: 'NewOrderSingle',
         channel: 'trading',
         clOrdID: Config.orderID,
@@ -241,7 +237,7 @@ class BlockchainExchange {
     // GTD = Good Til Date
     // Expire Date format = YYYYMMDD
     createSellStopGTDOrder(symbol, expireDate, amount, stopPx) {
-      this.wsSend({
+      return this.wsSend({
         action: 'NewOrderSingle',
         channel: 'trading',
         clOrdID: Config.orderID,
@@ -256,8 +252,8 @@ class BlockchainExchange {
     }
 
      // GTC = Good Til Cancelled
-    createStopLimitGTCOrder(symbol, side, amount, price, stopPx) {
-      this.wsSend({
+     createStopLimitGTCOrder(symbol, side, amount, price, stopPx) {
+      return this.wsSend({
         action: 'NewOrderSingle',
         channel: 'trading',
         clOrdID: Config.orderID,
@@ -274,7 +270,7 @@ class BlockchainExchange {
     // GTD = Good Til Date
     // Expire Date format = YYYYMMDD
     createStopLimitGTDOrder(symbol, side, expireDate, amount, price, stopPx) {
-      this.wsSend({
+      return this.wsSend({
         action: 'NewOrderSingle',
         channel: 'trading',
         clOrdID: Config.orderID,
@@ -290,7 +286,7 @@ class BlockchainExchange {
     }
 
     cancelOrder(orderID) {
-      this.wsSend({
+      return this.wsSend({
         action: 'CancelOrderRequest',
         channel: 'trading',
         orderID: orderID
@@ -298,11 +294,15 @@ class BlockchainExchange {
     }
 
     cancelAllOrders() {
-      this.wsSend({
+      return this.wsSend({
         action: 'BulkCancelOrderRequest',
         channel: 'trading',
       })
     }
+}
+
+async function wait (ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 module.exports = BlockchainExchange;
