@@ -24,7 +24,7 @@ npm start
 const Exchange = require('./exchange');
 const BlockchainExchange = new Exchange()
 
-async function gettingStarted() {
+async gettingStarted() {
         // Always call this
         await BlockchainExchange.setupWebSocket(); 
         // Once connected, call whatever you want
