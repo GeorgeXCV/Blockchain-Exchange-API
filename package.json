@@ -16,6 +16,6 @@
     "author": "George Ashton",
     "dependencies": {
         "node": "^14.0.0",
-        "ws": "^7.2.3"
+        "ws": "^7.4.6"
     }
 }
